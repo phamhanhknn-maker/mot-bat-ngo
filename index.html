@@ -27,7 +27,7 @@
       display: block;
     }
 
-    /* Màn hình thông báo chạm & xoay ngang */
+    /* Màn hình thông báo chờ chạm */
     #overlay-start {
       position: fixed;
       top: 0;
@@ -42,15 +42,16 @@
       align-items: center;
       color: #fff;
       cursor: pointer;
+      transition: opacity 0.4s ease;
     }
     #overlay-start svg {
       width: 56px;
       height: 56px;
       margin-bottom: 18px;
-      animation: rotate-phone 2s infinite ease-in-out;
+      animation: pulse-tap 1.8s infinite ease-in-out;
     }
     #overlay-start h2 {
-      font-size: 18px;
+      font-size: 19px;
       font-weight: 600;
       margin-bottom: 8px;
       color: #fff;
@@ -59,17 +60,12 @@
       font-size: 14px;
       color: #9ca3af;
     }
-    @keyframes rotate-phone {
-      0%, 20% { transform: rotate(0deg); }
-      50%, 70% { transform: rotate(-90deg); }
-      100% { transform: rotate(0deg); }
+    @keyframes pulse-tap {
+      0%, 100% { transform: scale(1); opacity: 0.9; }
+      50% { transform: scale(1.1); opacity: 0.5; }
     }
 
-    @media screen and (orientation: landscape) {
-      #overlay-start { display: none !important; }
-    }
-
-    /* Nút bật/tắt nhạc nổi */
+    /* Nút bật/tắt nhạc góc phải */
     #music-btn {
       position: fixed;
       top: 15px;
@@ -91,20 +87,19 @@
 </head>
 <body>
 
-  <!-- File nhạc bài "Giải cứu thế giới" -->
+  <!-- File nhạc nền -->
   <audio id="bg-music" src="nhac.mp3" preload="auto" loop></audio>
 
-  <!-- Màn hình chờ kích hoạt -->
+  <!-- Màn hình chờ mở quà -->
   <div id="overlay-start" onclick="unlockAudioAndStart()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
-      <line x1="12" y1="18" x2="12" y2="18.01"></line>
+      <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="rgba(255,255,255,0.2)"></path>
     </svg>
     <h2>Chạm vào màn hình</h2>
-    <p>và xoay ngang điện thoại để xem</p>
+    <p>để mở món quà bất ngờ này nhé</p>
   </div>
 
-  <!-- Nút loa góc phải -->
+  <!-- Nút loa -->
   <div id="music-btn" onclick="toggleMusic()">
     <svg id="music-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
@@ -117,7 +112,7 @@
 
   <script>
     // ==========================================
-    // 1. NỘI DUNG VĂN BẢN (ĐÃ FIX LỖI CÚ PHÁP)
+    // 1. NỘI DUNG VĂN BẢN
     // ==========================================
     const messages = [
       "3",
@@ -130,12 +125,11 @@
       "Nhưng mình thì có\nmình Thương bạn nhiều hơn những gì bạn nghĩ",
       "Đây không phải là món quà đặc biệt nhất\nmà bạn nhận được vào ngày hôm nay",
       "Nhưng là món quà cuối cùng do chính tay mình làm\ndành cho bạn",
-      "Để về sau này lúc nào bạn cũng có thể xem lại\nBạn sẽ thích chứ ?",
+      "Để về sau nay lúc nào bạn cũng có thể xem\nBạn sẽ thích chứ ?",
       "Thế là từ giờ bạn không được ăn bánh\ndo tự tay mình làm rồi",
       "Mình không cần lúc nào cũng nghĩ\nnên tặng gì hay làm gì để bất ngờ cho bạn",
       "Bạn thì không cần phải đi xa\nchỉ để nghe mỗi câu chúc mừng từ mình nữa",
-      "Nhưng dù như nào đi nữa\nbạn mãi là cậu nhóc",
-      "Là khỉ mốc, là ngoại lệ của riêng mình",
+      "Nhưng dù như nào đi nữa\nbạn mãi là cậu nhóc, là khỉ mốc, là ngoại lệ với mình",
       "Sẽ mãi dành cho bạn sự ưu tiên đặc biệt ấy",
       "Cuối cùng chỉ muốn nói với bạn một câu...",
       "Sinh Nhật Vui Vẻ Nhé\nchàng trai bé nhỏ của mình",
@@ -145,24 +139,31 @@
     const DURATION = 3300;
 
     // ==========================================
-    // 2. KÍCH HOẠT ÂM THANH MƯỢT MÀ
+    // 2. MỞ KHÓA ÂM THANH & ẨN MÀN HÌNH CHỜ
     // ==========================================
     const audio = document.getElementById("bg-music");
     let isMusicPlaying = false;
 
     function unlockAudioAndStart() {
+      // 1. Phát bài hát
       if (!isMusicPlaying) {
         audio.play().then(() => {
           isMusicPlaying = true;
           const icon = document.getElementById("music-icon");
           if (icon) icon.style.opacity = "1";
-        }).catch(() => {
-          // Trình duyệt giữ trạng thái chờ tương tác tiếp theo
-        });
+        }).catch(() => {});
+      }
+
+      // 2. Tự động ẩn tấm màn đen để lộ chữ và hiệu ứng
+      const overlay = document.getElementById("overlay-start");
+      if (overlay) {
+        overlay.style.opacity = "0";
+        setTimeout(() => {
+          overlay.style.display = "none";
+        }, 400);
       }
     }
 
-    // Bắt tương tác trên cả điện thoại (chạm ngón tay) và máy tính (click chuột)
     ['click', 'touchstart', 'pointerdown'].forEach(evt => {
       window.addEventListener(evt, unlockAudioAndStart, { once: true });
     });
@@ -231,7 +232,7 @@
     }
 
     // ==========================================
-    // 5. HIỆU ỨNG HẠT CHỮ & TRÁI TIM NÉT CĂNG
+    // 5. HIỆU ỨNG HẠT CHỮ & TRÁI TIM
     // ==========================================
     class Particle {
       constructor(x, y) {
@@ -269,14 +270,23 @@
       off.height = height;
       const oCtx = off.getContext("2d");
 
-      const fSize = Math.min(width * 0.08, 44);
+      // Tự co font chữ để không bao giờ bị tràn lề khi cầm máy dọc
+      const lines = text.split("\n");
+      let maxLen = 0;
+      lines.forEach(l => { if (l.trim().length > maxLen) maxLen = l.trim().length; });
+
+      let fSize = Math.min(width * 0.08, 42);
+      if (maxLen > 0) {
+        const fitSize = Math.floor((width * 0.92) / (maxLen * 0.58));
+        fSize = Math.max(16, Math.min(fSize, fitSize));
+      }
+
       oCtx.font = `bold ${fSize}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
       oCtx.fillStyle = "#fff";
       oCtx.textAlign = "center";
       oCtx.textBaseline = "middle";
 
-      const lines = text.split("\n");
-      const lineHeight = fSize * 1.35;
+      const lineHeight = fSize * 1.4;
       const startY = height / 2 - ((lines.length - 1) * lineHeight) / 2;
       lines.forEach((l, i) => oCtx.fillText(l.trim(), width / 2, startY + i * lineHeight));
 
