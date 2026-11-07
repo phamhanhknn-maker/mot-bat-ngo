@@ -27,7 +27,7 @@
       display: block;
     }
 
-    /* Màn hình thông báo chờ chạm */
+    /* Màn hình thông báo mở quà */
     #overlay-start {
       position: fixed;
       top: 0;
@@ -65,7 +65,7 @@
       50% { transform: scale(1.1); opacity: 0.5; }
     }
 
-    /* Nút bật/tắt nhạc góc phải */
+    /* Nút bật/tắt nhạc */
     #music-btn {
       position: fixed;
       top: 15px;
@@ -87,8 +87,8 @@
 </head>
 <body>
 
-  <!-- File nhạc nền -->
-  <audio id="bg-music" src="nhac.mp3" preload="auto" loop></audio>
+  <!-- File nhạc nền "Giải cứu thế giới" -->
+  <audio id="bg-music" src="nhac.mp3" preload="auto"></audio>
 
   <!-- Màn hình chờ mở quà -->
   <div id="overlay-start" onclick="unlockAudioAndStart()">
@@ -99,7 +99,7 @@
     <p>để mở món quà bất ngờ này nhé</p>
   </div>
 
-  <!-- Nút loa -->
+  <!-- Nút loa góc phải -->
   <div id="music-btn" onclick="toggleMusic()">
     <svg id="music-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
@@ -120,32 +120,35 @@
       "1",
       "Hôm nay là một ngày đặc biệt\ncủa một người rất rất đặc biệt với mình",
       "Chúc cho người đang đọc dòng chữ này\nmãi mãi được hạnh phúc",
-      "Chỉ mong cả đời này bạn được vui vẻ\nmạnh khỏe cv ổn định vậy là đủ",
-      "Thế giới ngoài kia có thể\nchẳng dịu dàng với bạn",
-      "Nhưng mình thì có\nmình Thương bạn nhiều hơn những gì bạn nghĩ",
-      "Đây không phải là món quà đặc biệt nhất\nmà bạn nhận được vào ngày hôm nay",
-      "Nhưng là món quà cuối cùng do chính tay mình làm\ndành cho bạn",
-      "Để về sau nay lúc nào bạn cũng có thể xem\nBạn sẽ thích chứ ?",
-      "Thế là từ giờ bạn không được ăn bánh\ndo tự tay mình làm rồi",
-      "Mình không cần lúc nào cũng nghĩ\nnên tặng gì hay làm gì để bất ngờ cho bạn",
-      "Bạn thì không cần phải đi xa\nchỉ để nghe mỗi câu chúc mừng từ mình nữa",
-      "Nhưng dù như nào đi nữa\nbạn mãi là cậu nhóc, là khỉ mốc, là ngoại lệ với mình",
-      "Sẽ mãi dành cho bạn sự ưu tiên đặc biệt ấy",
+      "Chỉ mong cả đời này bạn được vui vẻ\nmạnh khỏe, công việc ổn định\nvậy là đủ rồi...",
+      "Nếu Thế giới ngoài kia\nkhông dịu dàng với bạn",
+      "Thì hãy nhìn về phía mình và\nđể mình làm điều đó...\nVì Mình thương bạn nhiều hơn\nnhững gì bạn nghĩ",
+      "Đây không phải món quà đặc biệt nhất\nbạn nhận được hôm nay",
+      "Nhưng là món quà cuối cùng\ndo chính tay mình làm\ndành cho bạn",
+      "Để sau này\n1 lúc nào đó bạn nhớ mình\ncũng có thể xem lại\nBạn sẽ thích chứ?",
+      "Thế là từ giờ\nbạn không thể ăn bánh\ndo tự tay mình làm nữa rồi...",
+      "Mình cũng không còn lúc nào cũng nghĩ\nnên tặng gì hay làm gì\nđể mang bất ngờ cho bạn",
+      "Bạn cũng không cần đi xa nhiều cây số\nchỉ để nghe một câu chúc từ mình...",
+      "Nhưng dù như thế nào đi nữa...",
+      "Bạn mãi là cậu nhóc\nlà khỉ mốc\nlà ngoại lệ của mình",
+      "Sẽ mãi dành cho bạn\nsự ưu tiên đặc biệt ấy",
       "Cuối cùng chỉ muốn nói với bạn một câu...",
-      "Sinh Nhật Vui Vẻ Nhé\nchàng trai bé nhỏ của mình",
+      "Sinh Nhật Vui Vẻ Nhé!\nChàng trai bé nhỏ của mình ❤️",
       "__HEART__"
     ];
 
-    const DURATION = 3300;
-
     // ==========================================
-    // 2. MỞ KHÓA ÂM THANH & ẨN MÀN HÌNH CHỜ
+    // 2. KÍCH HOẠT VÀ TẮT NHẠC TỰ ĐỘNG
     // ==========================================
     const audio = document.getElementById("bg-music");
     let isMusicPlaying = false;
 
+    // Thời gian giữ hình trái tim trước khi tắt nhạc (8000ms = 8 giây)
+    const HEART_WAIT_TIME = 8000;
+    // Thời gian âm lượng nhỏ dần trước khi tắt hẳn (3500ms = 3.5 giây)
+    const FADE_OUT_TIME = 3500;
+
     function unlockAudioAndStart() {
-      // 1. Phát bài hát
       if (!isMusicPlaying) {
         audio.play().then(() => {
           isMusicPlaying = true;
@@ -154,7 +157,6 @@
         }).catch(() => {});
       }
 
-      // 2. Tự động ẩn tấm màn đen để lộ chữ và hiệu ứng
       const overlay = document.getElementById("overlay-start");
       if (overlay) {
         overlay.style.opacity = "0";
@@ -170,6 +172,7 @@
 
     function toggleMusic() {
       if (audio.paused) {
+        audio.volume = 1;
         audio.play();
         isMusicPlaying = true;
         document.getElementById("music-icon").style.opacity = "1";
@@ -178,6 +181,26 @@
         isMusicPlaying = false;
         document.getElementById("music-icon").style.opacity = "0.4";
       }
+    }
+
+    // Hàm làm nhỏ âm lượng từ từ rồi ngắt bài hát
+    function fadeOutAndStopAudio(duration) {
+      const stepInterval = 50;
+      const stepCount = duration / stepInterval;
+      const volumeStep = audio.volume / stepCount;
+
+      const fadeTimer = setInterval(() => {
+        if (audio.volume > volumeStep) {
+          audio.volume = Math.max(0, audio.volume - volumeStep);
+        } else {
+          audio.volume = 0;
+          audio.pause();
+          isMusicPlaying = false;
+          clearInterval(fadeTimer);
+          const icon = document.getElementById("music-icon");
+          if (icon) icon.style.opacity = "0.4";
+        }
+      }, stepInterval);
     }
 
     // ==========================================
@@ -211,16 +234,16 @@
     resize();
 
     // ==========================================
-    // 4. HIỆU ỨNG MATRIX NỀN
+    // 4. MATRIX NỀN DỊU MẮT
     // ==========================================
     const chars = "0123456789ABCDEF!@#$%^&*";
     const fontSize = 13;
     let drops = Array(Math.floor(width / fontSize)).fill(1);
 
     function drawMatrix() {
-      mCtx.fillStyle = "rgba(0, 0, 0, 0.1)";
+      mCtx.fillStyle = "rgba(0, 0, 0, 0.12)";
       mCtx.fillRect(0, 0, width, height);
-      mCtx.fillStyle = "rgba(180, 220, 255, 0.22)";
+      mCtx.fillStyle = "rgba(120, 190, 255, 0.16)";
       mCtx.font = `${fontSize}px monospace`;
 
       for (let i = 0; i < drops.length; i++) {
@@ -232,7 +255,7 @@
     }
 
     // ==========================================
-    // 5. HIỆU ỨNG HẠT CHỮ & TRÁI TIM
+    // 5. HẠT GHÉP CHỮ SẮC NÉT
     // ==========================================
     class Particle {
       constructor(x, y) {
@@ -240,17 +263,17 @@
         this.y = Math.random() * height;
         this.tx = x;
         this.ty = y;
-        this.size = 1.5;
-        this.alpha = 0.95;
+        this.size = 1.6;
+        this.alpha = 0.98;
       }
       update() {
         const dx = this.tx - this.x;
         const dy = this.ty - this.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
 
-        if (dist > 0.8) {
-          this.x += dx * 0.12;
-          this.y += dy * 0.12;
+        if (dist > 0.6) {
+          this.x += dx * 0.14;
+          this.y += dy * 0.14;
         } else {
           this.x = this.tx;
           this.y = this.ty;
@@ -270,15 +293,14 @@
       off.height = height;
       const oCtx = off.getContext("2d");
 
-      // Tự co font chữ để không bao giờ bị tràn lề khi cầm máy dọc
       const lines = text.split("\n");
       let maxLen = 0;
       lines.forEach(l => { if (l.trim().length > maxLen) maxLen = l.trim().length; });
 
-      let fSize = Math.min(width * 0.08, 42);
+      let fSize = Math.min(width * 0.085, 42);
       if (maxLen > 0) {
-        const fitSize = Math.floor((width * 0.92) / (maxLen * 0.58));
-        fSize = Math.max(16, Math.min(fSize, fitSize));
+        const fitSize = Math.floor((width * 0.92) / (maxLen * 0.60));
+        fSize = Math.max(21, Math.min(fSize, fitSize));
       }
 
       oCtx.font = `bold ${fSize}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
@@ -286,17 +308,17 @@
       oCtx.textAlign = "center";
       oCtx.textBaseline = "middle";
 
-      const lineHeight = fSize * 1.4;
+      const lineHeight = fSize * 1.45;
       const startY = height / 2 - ((lines.length - 1) * lineHeight) / 2;
       lines.forEach((l, i) => oCtx.fillText(l.trim(), width / 2, startY + i * lineHeight));
 
       const data = oCtx.getImageData(0, 0, width, height).data;
       const pts = [];
-      const step = 2.4;
+      const step = 1.8;
       for (let y = 0; y < height; y += step) {
         for (let x = 0; x < width; x += step) {
           const idx = (Math.floor(y) * width + Math.floor(x)) * 4;
-          if (data[idx + 3] > 140) pts.push({ x, y });
+          if (data[idx + 3] > 60) pts.push({ x, y });
         }
       }
       return pts;
@@ -314,7 +336,7 @@
         pts.push({ x: cx + x * scale, y: cy + y * scale });
       }
 
-      for (let i = 0; i < 450; i++) {
+      for (let i = 0; i < 480; i++) {
         const t = Math.random() * Math.PI * 2;
         const r = Math.sqrt(Math.random());
         const x = r * 16 * Math.pow(Math.sin(t), 3);
@@ -336,18 +358,39 @@
       }
     }
 
+    // ==========================================
+    // 6. ĐIỀU PHỐI THỜI GIAN VÀ KẾT THÚC NHẠC
+    // ==========================================
     setTarget(messages[0]);
-    const timer = setInterval(() => {
+
+    function playNextMessage() {
       msgIndex++;
-      if (msgIndex < messages.length) {
-        setTarget(messages[msgIndex]);
-      } else {
-        clearInterval(timer);
+      if (msgIndex >= messages.length) return;
+
+      setTarget(messages[msgIndex]);
+
+      const currentText = messages[msgIndex];
+      let delayTime = 4800;
+
+      if (["3", "2", "1"].includes(currentText)) {
+        delayTime = 1600;
+      } else if (currentText.length > 40) {
+        delayTime = 5500;
+      } else if (currentText === "__HEART__") {
+        // Sau khi hiện trái tim, đợi HEART_WAIT_TIME rồi giảm âm lượng tắt dần
+        setTimeout(() => {
+          fadeOutAndStopAudio(FADE_OUT_TIME);
+        }, HEART_WAIT_TIME);
+        return;
       }
-    }, DURATION);
+
+      setTimeout(playNextMessage, delayTime);
+    }
+
+    setTimeout(playNextMessage, 1600);
 
     // ==========================================
-    // 6. VÒNG LẶP RENDER
+    // 7. VÒNG LẶP RENDER HOẠT HỌA
     // ==========================================
     function loop() {
       drawMatrix();
